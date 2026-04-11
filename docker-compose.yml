@@ -1,0 +1,15 @@
+echo 'version: "3.8"' > docker -compose.yml
+echo 'services:' >> docker -compose.yml
+echo ' db:' >> docker -compose.yml
+echo ' image: postgres:16' >> docker -compose.yml
+echo ' restart: always ' >> docker -compose.yml
+echo ' environment:' >> docker -compose.yml
+echo ' POSTGRES_USER: postgres ' >> docker -compose.yml
+echo ' POSTGRES_PASSWORD: postgres ' >> docker -compose.yml
+echo ' POSTGRES_DB: sensante ' >> docker -compose.yml
+echo ' ports:' >> docker -compose.yml
+echo ' - "5432:5432"' >> docker -compose.yml
+echo ' volumes:' >> docker -compose.yml
+echo ' - pgdata:/var/lib/postgresql/data' >> docker -compose.yml
+echo 'volumes:' >> docker -compose.yml
+echo ' pgdata:' >> docker -compose.yml
