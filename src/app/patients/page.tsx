@@ -3,8 +3,8 @@ export default function PatientsPage() {
 const patients = [
 {nom:"Ndéye Félicité Diop",fonction:"gardien",groupe:8,sexe:"F" as const},
 {nom:"Mouhammed Guèye",fonction:"bouclier",groupe:8,sexe:"M" as const},
-{nom:"Mouhammed Ba",fonction:"architect",groupe:8,sexe:"F" as const},
-{nom:"Fatou Kiné Dianko",fonction:"pilote",groupe:8,sexe:"M" as const},
+{nom:"Mouhammed Ba",fonction:"architect",groupe:8,sexe:"M" as const},
+{nom:"Fatou Kiné Dianko",fonction:"pilote",groupe:8,sexe:"F" as const},
 ];
 return (
 <div>
