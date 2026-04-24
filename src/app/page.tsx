@@ -8,8 +8,8 @@ import LoginButton from "@/components/LoginButton";
 export default function Home() {
 	return (
 		<div className="min-h-screen bg-gray-50">
-		<Header />
-		<main className="p-8">
+			<Header />
+			<main className="p-8">
 		<div className="flex justify-between items-center mb-8">
 		<h2 className="text-2xl font-bold text-gray-800">
 		Tableau de bord
@@ -52,3 +52,4 @@ export default function Home() {
 		</main>
 		</div>
 	);
+}
