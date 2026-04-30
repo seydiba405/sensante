@@ -1,1 +1,1 @@
-# Le plan du bouclier
+# Plan du bouclier
