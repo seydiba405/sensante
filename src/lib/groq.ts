@@ -11,6 +11,7 @@ Tu analyses les symptômes signalés par un agent de santé communautaire et tu 
 Règles :
 - Tu donnes un niveau de confiance entre 0 et 100.
 - Tu classes l'urgence : "faible", "moyen", "urgent".
+- Tu dois calibrer la confiance selon la cohérence des symptômes, et éviter une valeur par défaut répétée.
 - Tu recommandes TOUJOURS de consulter un professionnel de santé.
 - Tu tiens compte du contexte sénégalais (paludisme, dengue, etc.).
 - Tu NE poses PAS de diagnostic définitif.
@@ -22,6 +23,41 @@ Réponds UNIQUEMENT en JSON valide :
   "recommandation": "conseil pour l'agent",
   "urgence": "faible" | "moyen" | "urgent"
 }`;
+
+type Urgence = "faible" | "moyen" | "urgent";
+
+function normaliserUrgence(valeur: unknown): Urgence {
+  if (typeof valeur !== "string") return "moyen";
+  const u = valeur.toLowerCase().trim();
+  if (u === "faible" || u === "moyen" || u === "urgent") return u;
+  return "moyen";
+}
+
+function normaliserConfiance(
+  confianceBrute: unknown,
+  urgence: Urgence,
+  nbSymptomes: number
+): number {
+  const parsed =
+    typeof confianceBrute === "number"
+      ? confianceBrute
+      : typeof confianceBrute === "string"
+      ? Number.parseFloat(confianceBrute.replace("%", "").trim())
+      : NaN;
+
+  if (Number.isFinite(parsed) && parsed !== 60) {
+    return Math.max(0, Math.min(100, Math.round(parsed)));
+  }
+
+  // Evite le 60% systématique quand le modèle reste trop générique.
+  const baseParUrgence: Record<Urgence, number> = {
+    faible: 35,
+    moyen: 55,
+    urgent: 75,
+  };
+  const bonusSymptomes = Math.min(Math.max(nbSymptomes, 0), 10) * 2;
+  return Math.max(0, Math.min(100, baseParUrgence[urgence] + bonusSymptomes));
+}
 
 export async function analyserSymptomes(
   patient: {
@@ -62,7 +98,28 @@ Propose un pré-diagnostic.`;
   const response = completion.choices[0]?.message?.content || "{}";
 
   try {
-    return JSON.parse(response);
+    const brut = JSON.parse(response) as {
+      diagnostic?: unknown;
+      confiance?: unknown;
+      recommandation?: unknown;
+      urgence?: unknown;
+    };
+
+    const urgence = normaliserUrgence(brut.urgence);
+    const confiance = normaliserConfiance(brut.confiance, urgence, symptomes.length);
+
+    return {
+      diagnostic:
+        typeof brut.diagnostic === "string" && brut.diagnostic.trim().length > 0
+          ? brut.diagnostic.trim()
+          : "Pré-diagnostic non disponible.",
+      confiance,
+      recommandation:
+        typeof brut.recommandation === "string" && brut.recommandation.trim().length > 0
+          ? brut.recommandation.trim()
+          : "Consultez un professionnel de santé pour confirmation.",
+      urgence,
+    };
   } catch (error) {
     return {
       diagnostic: "Erreur lors de l'analyse des données.",
