@@ -36,7 +36,18 @@ export default function DiagnosticIA({
 
       if (res.ok) {
         const data = await res.json();
-        setResultat(data);
+        setResultat({
+          diagnostic: data?.diagnostic ?? "Diagnostic indisponible",
+          confiance: Number.isFinite(data?.confiance) ? data.confiance : 0,
+          recommandation:
+            data?.recommandation ?? "Consultez un professionnel de santé.",
+          urgence:
+            data?.urgence === "faible" ||
+            data?.urgence === "moyen" ||
+            data?.urgence === "urgent"
+              ? data.urgence
+              : "moyen",
+        });
         onDiagnostic();
       } else {
         console.error("Erreur lors de l'appel API");
@@ -123,7 +134,7 @@ export default function DiagnosticIA({
             </div>
           </div>
           <p className="text-xs text-gray-400 italic mt-4">
-            Avertissement : Cette analyse automatique ne remplace pas l'avis d'un médecin.
+            Avertissement : Cette analyse automatique ne remplace pas l'avis d'un médecin.</p>
         </div>
       )}
     </div>
