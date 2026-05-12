@@ -1,15 +1,39 @@
-echo 'version: "3.8"' > docker -compose.yml
-echo 'services:' >> docker -compose.yml
-echo ' db:' >> docker -compose.yml
-echo ' image: postgres:16' >> docker -compose.yml
-echo ' restart: always ' >> docker -compose.yml
-echo ' environment:' >> docker -compose.yml
-echo ' POSTGRES_USER: postgres ' >> docker -compose.yml
-echo ' POSTGRES_PASSWORD: postgres ' >> docker -compose.yml
-echo ' POSTGRES_DB: sensante ' >> docker -compose.yml
-echo ' ports:' >> docker -compose.yml
-echo ' - "5432:5432"' >> docker -compose.yml
-echo ' volumes:' >> docker -compose.yml
-echo ' - pgdata:/var/lib/postgresql/data' >> docker -compose.yml
-echo 'volumes:' >> docker -compose.yml
-echo ' pgdata:' >> docker -compose.yml
+version: "3.8"
+
+services:
+  # Service 1 : Base de données PostgreSQL
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: sensante
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Service 2 : Application Next.js
+  app:
+    build: .
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: "postgresql://postgres:postgres@db:5432/sensante?schema=public"
+      NEXTAUTH_SECRET: "${NEXTAUTH_SECRET}"
+      NEXTAUTH_URL: "http://localhost:3000"
+      GROQ_API_KEY: "${GROQ_API_KEY}"
+    depends_on:
+      db:
+        condition: service_healthy
+
+# Volumes persistants
+volumes:
+  pgdata:
