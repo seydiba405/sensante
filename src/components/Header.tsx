@@ -22,7 +22,7 @@ export default function Header() {
               </div>
               
               <button
-                onClick={() => signOut()}
+                onClick={() => signOut({ callbackUrl: "/welcome" })}
                 className="text-sm bg-teal-600 px-4 py-2 rounded-lg font-medium hover:bg-red-500 transition-colors duration-200 shadow-sm"
               >
                 Déconnexion
