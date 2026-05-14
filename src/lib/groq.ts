@@ -1,9 +1,19 @@
 import Groq from "groq-sdk";
 
-const groq = new Groq({
-  // Suppression de l'espace avant la virgule
-  apiKey: process.env.GROQ_API_KEY,
-});
+let groqSingleton: Groq | null = null;
+
+function getGroqClient(): Groq {
+  const apiKey = process.env.GROQ_API_KEY?.trim();
+  if (!apiKey) {
+    throw new Error(
+      "GROQ_API_KEY est manquante ou vide. Définissez-la dans l’environnement d’exécution."
+    );
+  }
+  if (!groqSingleton) {
+    groqSingleton = new Groq({ apiKey });
+  }
+  return groqSingleton;
+}
 
 const SYSTEM_PROMPT = `Tu es un assistant médical pour le Sénégal. 
 Tu analyses les symptômes signalés par un agent de santé communautaire et tu proposes un pré-diagnostic.
@@ -82,7 +92,7 @@ Symptômes : ${symptomes.join(", ")}
 ${notes ? `Notes : ${notes}` : ""}
 Propose un pré-diagnostic.`;
 
-  const completion = await groq.chat.completions.create({
+  const completion = await getGroqClient().chat.completions.create({
     messages: [
       { role: "system", content: SYSTEM_PROMPT },
       { role: "user", content: userMessage },

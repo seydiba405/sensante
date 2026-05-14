@@ -11,8 +11,8 @@ RUN npm ci
 COPY . .
 # 6. Générer le client Prisma
 RUN npx prisma generate
-# 7. Compiler Next.js pour la production
-RUN --mount=type=secret,id=groq_api_key GROQ_API_KEY="$(cat /run/secrets/groq_api_key)" npm run build
+# 7. Compiler Next.js pour la production (pas de DB ni Groq requis ici si `force-dynamic` sur les layouts)
+RUN npm run build
 # 8. Déclarer le port utilisé
 EXPOSE 3000
 # 9. Commande de démarrage

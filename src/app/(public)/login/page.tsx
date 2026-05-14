@@ -25,7 +25,7 @@ export default function LoginPage() {
     if (res?.error) {
       setError("Email ou mot de passe incorrect");
     } else {
-      router.push("/patients");
+      router.push("/");
     }
     setLoading(false);
   }
@@ -78,7 +78,7 @@ export default function LoginPage() {
         <p className="text-sm text-gray-600 text-center mt-6">
           Pas encore de compte ?{" "}
           <Link href="/register" className="text-teal-600 font-medium hover:underline">
-            S'inscrire
+            S&apos;inscrire
           </Link>
         </p>
       </div>
